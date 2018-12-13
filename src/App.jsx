@@ -1,54 +1,61 @@
 import React, { Component } from 'react';
-import { Switch, Link, Route } from 'fuse-react';
-import GitHub from 'github-api';
-import Routes from './Routes';
-import globalStore from "./Global"
-import Login from './Login/Login';
+import { TextField } from '@material-ui/core';
 
 class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { 
-      usuarioLogado: null, 
-      gh: null,
+    this.state = {
+      username: '',
+      user: {
+        name: ''
+      }
     }
   }
 
-  componentWillMount() {
-    this.unsubscribe = globalStore.subscribe(() => {
-      debugger
-      this.setState({
-        usuarioLogado: globalStore.getState().globalReducer.usuarioLogado,
-        gh: globalStore.getState().globalReducer.gh,
-      })
+  handleChange(event) {
+    this.setState({
+      username: event.target.value
     })
   }
 
-  componentWillUnmount() {
-    this.unsubscribe()
+  async submit(event) {
+    event.preventDefault()
+    debugger
+    let user = await this.getUser(this.state.username);
+    this.setState({
+      user: {
+        name: user.name
+      }
+    })
+  }
+
+  getUser(username) {
+    debugger
+    return fetch(`https://api.github.com/users/${username}`)
+      .then(response => {
+        response.json()
+      })
+      .then(response => {
+        return response
+      })
   }
 
   render() {
-    const user = this.state.gh && this.state.gh.getUser();
-    return user ? 
-      (
-        <div className="App">
-          <main>
-            <Switch>
-              {Routes().map(function (r, index) {
-                return <Route 
-                  key={index}
-                  path={r.path}
-                  component={r.component}
-                  exact={r.exact}
-                />
-              })}
-            </Switch>
-          </main>
-          
-        </div>
-      ) : <Login/>
+    return (
+      <div className="App">
+        <main>
+          <form onSubmit={e => this.submit(e)}>
+            <TextField
+              id="username"
+              value={this.state.username}
+              onChange={e => this.handleChange(e)}
+            />
+          </form>
+          {this.state.user.name}
+        </main>
+      </div>
+    )
   }
 }
 
