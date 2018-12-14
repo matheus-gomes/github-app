@@ -1,19 +1,34 @@
 import React, { Component } from 'react';
-import { TextField } from '@material-ui/core';
+import { TextField, withStyles, Grid } from '@material-ui/core';
+import Login from './Login/Login';
+
+const styles = theme => ({
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  form: {
+    width: '100%',
+  },
+  textField: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+  },
+})
 
 class App extends Component {
 
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
+      user: null,
       username: '',
-      user: {
-        name: ''
-      }
+      userSearched: null
     }
   }
 
   handleChange(event) {
+    event.preventDefault();
     this.setState({
       username: event.target.value
     })
@@ -21,42 +36,39 @@ class App extends Component {
 
   async submit(event) {
     event.preventDefault()
+    let userSearched = await this.getUser(this.state.username);
     debugger
-    let user = await this.getUser(this.state.username);
     this.setState({
-      user: {
-        name: user.name
-      }
+      userSearched
     })
   }
 
   getUser(username) {
-    debugger
     return fetch(`https://api.github.com/users/${username}`)
-      .then(response => {
-        response.json()
-      })
-      .then(response => {
-        return response
+      .then(response => response.json())
+      .then(data => {
+        return data;
       })
   }
 
   render() {
-    return (
-      <div className="App">
-        <main>
-          <form onSubmit={e => this.submit(e)}>
-            <TextField
-              id="username"
-              value={this.state.username}
-              onChange={e => this.handleChange(e)}
-            />
-          </form>
-          {this.state.user.name}
-        </main>
-      </div>
-    )
+    const { classes } = this.props;
+    const { user, userSearched } = this.state;
+    return user ? (
+      <>
+        <form className={classes.container} onSubmit={e => this.submit(e)}>
+          <TextField
+            id="username"
+            className={classes.textField}
+            value={this.state.username}
+            fullWidth
+            onChange={e => this.handleChange(e)}
+          />
+        </form>
+        {userSearched ? userSearched.name : ""}
+      </>
+    ) : <Login/>
   }
 }
 
-export default App;
+export default withStyles(styles)(App);
