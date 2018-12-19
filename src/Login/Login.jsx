@@ -1,7 +1,6 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { TextField, Button } from '@material-ui/core';
-import GitHub from 'github-api';
 
 import { loginGithub } from './autenticacao';
 
@@ -24,11 +23,6 @@ const styles = theme => ({
 });
 
 class Login extends React.Component {
-  state = {
-    login: '',
-    password: '',
-  }
-
   constructor(props) {
     super(props);
     this.login = this.login.bind(this)
@@ -42,10 +36,9 @@ class Login extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { login, password } = this.state;
     return (
       <form className={classes.container}>
-        <TextField
+        {/* <TextField
           id="login"
           label="Login"
           className={classes.textField}
@@ -62,21 +55,18 @@ class Login extends React.Component {
           autoComplete="current-password"
           onChange={this.handleChange('password')}
           margin="normal"
-        />
-        <Button onClick={this.login}>Entrar</Button>
+        /> */}
+        <Button onClick={() => this.login()}>Entrar com GitHub</Button>
       </form>
     )
   }
 
   login() {
     debugger
-    const gh = new GitHub({
-      username: this.state.login,
-      password: this.state.password,
-    })
-
-    console.log(gh)
-    console.log(gh.getUser())
+    return window.location = 'https://github.com/login/oauth/authorize?' +
+      'client_id=9c51c8ab3840d2cc2d77',
+      '&redirect_uri=' + window.location.origin + '/auth/callback',
+      '&scope=user,repo'
   }
 }
 
