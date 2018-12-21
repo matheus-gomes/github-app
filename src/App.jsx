@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { TextField, withStyles, Grid } from '@material-ui/core';
 import Login from './Login/Login';
 import globalStore from "./Global"
+import Carregando from './Carregando';
 
 const styles = theme => ({
   container: {
@@ -24,6 +25,7 @@ class App extends Component {
     this.state = {
       usuarioLogado: null,
       userSearched: null,
+      carregando: true,
     }
   }
 
@@ -31,6 +33,7 @@ class App extends Component {
     this.unsubscribe = globalStore.subscribe(() => {
       this.setState({
         usuarioLogado: globalStore.getState().globalReducer.usuarioLogado,
+        carregando: globalStore.getState().globalReducer.carregando
       })
     })
   }
@@ -42,7 +45,7 @@ class App extends Component {
   handleChange(event) {
     event.preventDefault();
     this.setState({
-      username: event.target.value
+      username: event.target.value,
     })
   }
 
@@ -65,21 +68,27 @@ class App extends Component {
 
   render() {
     const { classes } = this.props;
-    const { usuarioLogado, userSearched } = this.state;
-    return usuarioLogado ? (
-      <>
-        <form className={classes.container} onSubmit={e => this.submit(e)}>
-          <TextField
-            id="username"
-            className={classes.textField}
-            value={this.state.username}
-            fullWidth
-            onChange={e => this.handleChange(e)}
-          />
-        </form>
-        {userSearched ? userSearched.name : ""}
-      </>
-    ) : <Login/>
+    const { carregando, usuarioLogado, userSearched } = this.state;
+    return <>
+      <Carregando carregando={carregando}></Carregando>
+      {
+        carregando ? <></> :
+        usuarioLogado ? (
+        <>
+          <form className={classes.container} onSubmit={e => this.submit(e)}>
+            <TextField
+              id="username"
+              className={classes.textField}
+              value={this.state.username}
+              fullWidth
+              onChange={e => this.handleChange(e)}
+            />
+          </form>
+          {userSearched ? userSearched.name : ""}
+        </>
+        ) : <Login/> 
+      }
+    </>
   }
 }
 
