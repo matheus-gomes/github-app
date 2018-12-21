@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { TextField, withStyles, Grid } from '@material-ui/core';
 import Login from './Login/Login';
+import globalStore from "./Global"
 
 const styles = theme => ({
   container: {
@@ -21,10 +22,21 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      user: null,
-      username: '',
-      userSearched: null
+      usuarioLogado: null,
+      userSearched: null,
     }
+  }
+
+  componentWillMount() {
+    this.unsubscribe = globalStore.subscribe(() => {
+      this.setState({
+        usuarioLogado: globalStore.getState().globalReducer.usuarioLogado,
+      })
+    })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
   }
 
   handleChange(event) {
@@ -53,8 +65,8 @@ class App extends Component {
 
   render() {
     const { classes } = this.props;
-    const { user, userSearched } = this.state;
-    return user ? (
+    const { usuarioLogado, userSearched } = this.state;
+    return usuarioLogado ? (
       <>
         <form className={classes.container} onSubmit={e => this.submit(e)}>
           <TextField
